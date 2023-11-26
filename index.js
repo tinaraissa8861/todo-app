@@ -10,12 +10,53 @@ app.set('view engine', 'handlebars')
 
 app.use(express.static('public'))
 
-app.get('/',(requisicao, resposta) => {
-    resposta.render('home')
+//converter dados do formulario em objeto javascript
+app.use(express.urlencoded({
+    extended: true
+}))
+
+app.use(express.json())
+
+//rotas
+
+app.post('/criar',(requisicao, resposta) => {
+    const descricao = requisicao.body.descricao
+
+    const completa = 0
+
+    const sql=`
+        INSERT INTO tarefas(descricao,completa)
+        VALUES ('${descricao}', '${completa}')
+    `
+
+    conexao.query(sql, (erro) => {
+        if (erro) {
+            return console.log(erro)
+        }
+
+        resposta.redirect('/')
+    })
 })
 
-app.listen(3000, () => {
-    console.log("Servidor rodando na porta 3000")
+app.get('/',(requisicao, resposta) => {
+    const sql = 'SELECT * FROM tarefas'
+
+    conexao.query(sql,(erro,dados) => {
+        if (erro){
+            return console.log(erro)
+        }
+
+        const tarefas = dados.map((dados) => {
+            return{
+                id: dados.id,
+                descricao: dados.descricao,
+                completa: dados.completa === 0 ? false : true
+            }
+        })
+
+    })
+
+    resposta.render('home')
 })
 
 
@@ -28,13 +69,13 @@ const conexao = mysql.createConnection({
 })
 
 conexao.connect((erro) => {
-    if(erro){
+    if(erro) {
         return console.log(erro)
     }
 
-    console.log("estou conectado ao my sql")
+    console.log("estou conectado ao mysql")
 
-    app.listen(3000,() => {
+    app.listen( 3000, () => {
         console.log("servidor rodando na porta 3000")
     })
 })
