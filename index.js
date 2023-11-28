@@ -1,9 +1,9 @@
 const express = require("express")
 const exphbs = require("express-handlebars")
 const mysql = require("mysql2")
-/*express randlbarrs*/
-
 const app = express()
+
+/*express randlbarrs*/
 
 app.engine('handlebars', exphbs.engine())
 app.set('view engine', 'handlebars')
@@ -18,6 +18,24 @@ app.use(express.urlencoded({
 app.use(express.json())
 
 //rotas
+
+app.post('/completar', (requisicao, resposta) => {
+    const id = requisicao.body.id
+
+    const sql = `
+        UPDATE tarefas
+        SET completa = '1'
+        WHERE id = ${id}
+    `
+
+    conexao.query(sql, (erro)=>{
+        if (erro) {
+            return console.log(erro)
+        }
+
+        resposta.redirect('/')
+    })
+})
 
 app.post('/criar',(requisicao, resposta) => {
     const descricao = requisicao.body.descricao
@@ -41,20 +59,20 @@ app.post('/criar',(requisicao, resposta) => {
 app.get('/',(requisicao, resposta) => {
     const sql = 'SELECT * FROM tarefas'
 
-    conexao.query(sql,(erro,dados) => {
-        if (erro){
+    conexao.query(sql, (erro, dados) => {
+        if (erro) {
             return console.log(erro)
         }
 
-        const tarefas = dados.map((dados) => {
-            return{
-                id: dados.id,
-                descricao: dados.descricao,
-                completa: dados.completa === 0 ? false : true
+        const tarefas = dados.map((dado) => {
+            return {
+                id: dado.id,
+                descricao: dado.descricao,
+                completa: dado.completa === 0 ? false : true
             }
         })
         
-        resposta.render('home',{ tarefas})
+        resposta.render('home',{tarefas})
     })
 
 })
