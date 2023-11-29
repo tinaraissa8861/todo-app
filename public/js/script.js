@@ -18,9 +18,11 @@ function descompletarTarefa(id) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ id })
-    })
 
-    Window.location.reload()
+    })
+    
+    window.location.reload()
+    
 }
 
 function alterarTema() {
